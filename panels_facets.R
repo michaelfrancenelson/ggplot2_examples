@@ -19,8 +19,8 @@ gg1 + f1 + geom_bar(stat = "identity", aes(fill = forest), color = 1, width = 1)
 
 # with different scales in each facet
 f2 = facet_wrap (~ forest, ncol = 2, scales = "free")
-gg1 + f2 + geom_bar(stat = "identity", aes(fill = forest), color = 1, width = 1)
 
+grid.arrange(gg1 + f2 + geom_bar(stat = "identity", aes(fill = forest), color = 1, width = 1), nrow = 1)
 
 
 
@@ -37,5 +37,30 @@ g1 = ggplot(d1, aes(x, y, color = y)) + geom_point(); g1
 g2 = ggplot(d2, aes(x = obs)) + geom_bar(stat = "count"); g2
 g3 = ggplot(d3, aes(x, y)) + geom_line(); g3
 
-grid.arrange(g1, g2, g3, nrow = 1)
+grid.arrange(g1, g2, g3, nrow = 3)
 
+
+# Different data sets, common x-axis, aligned.  Use grid and gtable ----------------------------
+require(grid)
+require(gridExtra)
+require(gtable)
+require(ggplot2)
+
+x = 1:100
+d1 = data.frame(x = x, y1 = rnorm(100), y2 = rnorm(n = 100, mean = 1e-10), y3 = rnorm(n = 100, mean = 1e10, sd = 1e5))
+g1 = ggplot(d1, aes(x = x))
+
+# create a theme with no x-axis label to use on all but the lowest panel
+t1 =  theme(axis.text.x = element_blank(), axis.title.x = element_blank())
+gg1 = g1 + geom_line(aes(y = y1)) + t1
+gg2 = g1 + geom_line(aes(y = y2)) + t1
+gg3 = g1 + geom_line(aes(y = y3))
+
+
+gb1 = ggplotGrob(gg1)
+gb2 = ggplotGrob(gg2)
+gb3 = ggplotGrob(gg3)
+
+
+gg5 = rbind(gb1, gb2, gb3, size = "first")
+grid.draw(gg5)
